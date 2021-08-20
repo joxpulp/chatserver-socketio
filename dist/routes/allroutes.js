@@ -5,40 +5,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ioServer = exports.router = void 0;
 
-var _fs = _interopRequireDefault(require("fs"));
-
 var _express = _interopRequireDefault(require("express"));
 
 var _socket = _interopRequireDefault(require("socket.io"));
 
 var _productclass = _interopRequireDefault(require("../productclass"));
 
+var _messageclass = _interopRequireDefault(require("../messageclass"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 var router = _express["default"].Router();
 
 exports.router = router;
 var products = new _productclass["default"]();
-var messages = [];
-
-var readMessages = function readMessages() {
-  var txtFile = messages.length !== 0 ? _toConsumableArray(JSON.parse(_fs["default"].readFileSync('messageslog.txt', 'utf-8'))) : [];
-  messages = txtFile;
-  return messages;
-}; // Endpoint GET para listar todos los productos
-
+var messages = new _messageclass["default"](); // Endpoint GET para listar todos los productos
 
 router.get('/productos/listar', function (req, res) {
   var getProducts = products.getProducts();
@@ -49,16 +34,44 @@ router.get('/productos/listar', function (req, res) {
   });
 }); // Endpoint GET para listar todos los messages
 
-router.get('/mensajes/listar', function (req, res) {
-  var txtFile = _fs["default"].readFileSync('messageslog.txt', 'utf-8');
+router.get('/mensajes/listar', /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(req, res) {
+    var listMessages;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.prev = 0;
+            _context.next = 3;
+            return messages.getMessages();
 
-  messages = _toConsumableArray(JSON.parse(txtFile));
-  messages.length !== 0 ? res.json({
-    messages: messages
-  }) : res.status(404).json({
-    error: 'No hay mensajes cargados'
-  });
-}); // Endpoint GET para pedir un producto especifico por ID
+          case 3:
+            listMessages = _context.sent;
+            listMessages.length !== 0 ? res.json({
+              messages: listMessages
+            }) : res.status(404).json({
+              error: 'No hay mensajes cargados'
+            });
+            _context.next = 10;
+            break;
+
+          case 7:
+            _context.prev = 7;
+            _context.t0 = _context["catch"](0);
+            console.log(_context.t0);
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[0, 7]]);
+  }));
+
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}()); // Endpoint GET para pedir un producto especifico por ID
 
 router.get('/productos/listar/:id', function (req, res) {
   var specificId = req.params.id;
@@ -83,15 +96,7 @@ router.post('/productos/guardar', function (req, res) {
 
 router.post('/mensajes/guardar', function (req, res) {
   var body = req.body;
-  messages.push({
-    email: body.email,
-    date: body.date,
-    time: body.time,
-    message: body.message
-  });
-
-  _fs["default"].writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
-
+  messages.newMessage(body.email, body.date, body.time, body.message);
   res.json({
     mensaje: body
   });
@@ -120,22 +125,80 @@ router["delete"]('/productos/borrar/:id', function (req, res) {
 
 var ioServer = function ioServer(server) {
   var io = (0, _socket["default"])(server);
-  io.on('connection', function (socket) {
-    console.log('Client Connected');
-    socket.on('addProduct', function (data) {
-      products.addProduct(data.title, data.price, data.thumbnail);
-      io.emit('products', products.getProducts());
-    });
-    socket.emit('products', products.getProducts());
-    socket.on('sendMessage', function (message) {
-      messages.push(message);
+  io.on('connection', /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(socket) {
+      var getMessages;
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              console.log('Client Connected');
+              socket.on('addProduct', function (data) {
+                products.addProduct(data.title, data.price, data.thumbnail);
+                io.emit('products', products.getProducts());
+              });
+              socket.emit('products', products.getProducts());
+              _context3.prev = 3;
+              _context3.next = 6;
+              return messages.getMessages();
 
-      _fs["default"].writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
+            case 6:
+              getMessages = _context3.sent;
+              socket.on('sendMessage', /*#__PURE__*/function () {
+                var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(message) {
+                  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                    while (1) {
+                      switch (_context2.prev = _context2.next) {
+                        case 0:
+                          _context2.prev = 0;
+                          _context2.next = 3;
+                          return messages.newMessage(message.email, message.date, message.time, message.message);
 
-      io.emit('messages', readMessages());
-    });
-    socket.emit('messages', readMessages());
-  });
+                        case 3:
+                          _context2.next = 8;
+                          break;
+
+                        case 5:
+                          _context2.prev = 5;
+                          _context2.t0 = _context2["catch"](0);
+                          console.log(_context2.t0);
+
+                        case 8:
+                          io.emit('messages', getMessages);
+
+                        case 9:
+                        case "end":
+                          return _context2.stop();
+                      }
+                    }
+                  }, _callee2, null, [[0, 5]]);
+                }));
+
+                return function (_x4) {
+                  return _ref3.apply(this, arguments);
+                };
+              }());
+              socket.emit('messages', getMessages);
+              _context3.next = 14;
+              break;
+
+            case 11:
+              _context3.prev = 11;
+              _context3.t0 = _context3["catch"](3);
+              console.log(_context3.t0);
+
+            case 14:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3, null, [[3, 11]]);
+    }));
+
+    return function (_x3) {
+      return _ref2.apply(this, arguments);
+    };
+  }());
   return io;
 };
 

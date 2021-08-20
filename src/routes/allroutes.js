@@ -1,16 +1,11 @@
-import fs from 'fs';
 import express from 'express';
 import socketIo from 'socket.io';
 import Product from '../productclass';
+import Message from '../messageclass';
 
 export const router = express.Router();
 const products = new Product();
-let messages = [];
-const readMessages = () => {
-	const txtFile = messages.length !== 0 ? [...JSON.parse(fs.readFileSync('messageslog.txt', 'utf-8'))] : [];
-	messages = txtFile;
-	return messages;
-};
+const messages = new Message();
 
 // Endpoint GET para listar todos los productos
 router.get('/productos/listar', (req, res) => {
@@ -21,12 +16,15 @@ router.get('/productos/listar', (req, res) => {
 });
 
 // Endpoint GET para listar todos los messages
-router.get('/mensajes/listar', (req, res) => {
-	const txtFile = fs.readFileSync('messageslog.txt', 'utf-8');
-	messages = [...JSON.parse(txtFile)];
-	messages.length !== 0
-		? res.json({ messages })
-		: res.status(404).json({ error: 'No hay mensajes cargados' });
+router.get('/mensajes/listar', async (req, res) => {
+	try {
+		const listMessages = await messages.getMessages();
+		listMessages.length !== 0
+			? res.json({ messages: listMessages })
+			: res.status(404).json({ error: 'No hay mensajes cargados' });
+	} catch (error) {
+		console.log(error);
+	}
 });
 
 // Endpoint GET para pedir un producto especifico por ID
@@ -49,13 +47,7 @@ router.post('/productos/guardar', (req, res) => {
 // Endpoint POST para agregar un producto
 router.post('/mensajes/guardar', (req, res) => {
 	const body = req.body;
-	messages.push({
-		email: body.email,
-		date: body.date,
-		time: body.time,
-		message: body.message,
-	});
-	fs.writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
+	messages.newMessage(body.email, body.date, body.time, body.message);
 	res.json({ mensaje: body });
 });
 
@@ -86,7 +78,7 @@ router.delete('/productos/borrar/:id', (req, res) => {
 // Socket Server
 export const ioServer = (server) => {
 	const io = socketIo(server);
-	io.on('connection', (socket) => {
+	io.on('connection', async (socket) => {
 		console.log('Client Connected');
 
 		socket.on('addProduct', (data) => {
@@ -96,14 +88,26 @@ export const ioServer = (server) => {
 
 		socket.emit('products', products.getProducts());
 
-		socket.on('sendMessage', (message) => {
-			messages.push(message);
-			fs.writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
+		try {
+			const getMessages = await messages.getMessages();
+			socket.on('sendMessage', async (message) => {
+				try {
+					await messages.newMessage(
+						message.email,
+						message.date,
+						message.time,
+						message.message
+					);
+				} catch (error) {
+					console.log(error);
+				}
+				io.emit('messages', getMessages);
+			});
 
-			io.emit('messages', readMessages());
-		});
-
-		socket.emit('messages', readMessages());
+			socket.emit('messages', getMessages);
+		} catch (error) {
+			console.log(error);
+		}
 	});
 
 	return io;
