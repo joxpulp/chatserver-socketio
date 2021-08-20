@@ -16,7 +16,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var port = 8080;
+var port = process.env.PORT || 8080;
 var app = (0, _express["default"])();
 var server = http.Server(app);
 (0, _products.ioServer)(server); // Indica que el servidor esta levantado y corriendo en puerto especificado

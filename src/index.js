@@ -3,7 +3,7 @@ import path from 'path';
 import * as http from 'http';
 import { router, ioServer } from './routes/products';
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 const app = express();
 const server = http.Server(app);
 
