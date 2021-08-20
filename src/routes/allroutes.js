@@ -1,11 +1,16 @@
+import fs from 'fs';
 import express from 'express';
 import socketIo from 'socket.io';
 import Product from '../productclass';
 
 export const router = express.Router();
 const products = new Product();
-
-const messages = []
+let messages = [];
+const readMessages = () => {
+	const txtFile = messages.length !== 0 ? [...JSON.parse(fs.readFileSync('messageslog.txt', 'utf-8'))] : [];
+	messages = txtFile;
+	return messages;
+};
 
 // Endpoint GET para listar todos los productos
 router.get('/productos/listar', (req, res) => {
@@ -13,6 +18,15 @@ router.get('/productos/listar', (req, res) => {
 	getProducts.length !== 0
 		? res.json({ products: getProducts })
 		: res.status(404).json({ error: 'No hay productos cargados' });
+});
+
+// Endpoint GET para listar todos los messages
+router.get('/mensajes/listar', (req, res) => {
+	const txtFile = fs.readFileSync('messageslog.txt', 'utf-8');
+	messages = [...JSON.parse(txtFile)];
+	messages.length !== 0
+		? res.json({ messages })
+		: res.status(404).json({ error: 'No hay mensajes cargados' });
 });
 
 // Endpoint GET para pedir un producto especifico por ID
@@ -30,6 +44,19 @@ router.post('/productos/guardar', (req, res) => {
 	const body = req.body;
 	const product = products.addProduct(body.title, body.price, body.thumbnail);
 	res.json({ product });
+});
+
+// Endpoint POST para agregar un producto
+router.post('/mensajes/guardar', (req, res) => {
+	const body = req.body;
+	messages.push({
+		email: body.email,
+		date: body.date,
+		time: body.time,
+		message: body.message,
+	});
+	fs.writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
+	res.json({ mensaje: body });
 });
 
 // Endpoint PUT para actualizar un producto por ID
@@ -62,10 +89,6 @@ export const ioServer = (server) => {
 	io.on('connection', (socket) => {
 		console.log('Client Connected');
 
-		socket.on('hi', () => {
-			console.log('Connected Client REACT');
-		});
-
 		socket.on('addProduct', (data) => {
 			products.addProduct(data.title, data.price, data.thumbnail);
 			io.emit('products', products.getProducts());
@@ -74,12 +97,13 @@ export const ioServer = (server) => {
 		socket.emit('products', products.getProducts());
 
 		socket.on('sendMessage', (message) => {
-			console.log(message)
-			messages.push(message)
-			io.emit('messages', messages);
-		})
+			messages.push(message);
+			fs.writeFileSync('messageslog.txt', JSON.stringify(messages, null, 2));
 
-		socket.emit('messages', messages )
+			io.emit('messages', readMessages());
+		});
+
+		socket.emit('messages', readMessages());
 	});
 
 	return io;

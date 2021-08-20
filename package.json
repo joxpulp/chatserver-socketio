@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "regenerator-runtime": "^0.13.9",
     "socket.io": "^4.1.3"
   }
 }

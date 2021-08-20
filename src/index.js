@@ -1,7 +1,6 @@
 import express from 'express';
-import path from 'path';
 import * as http from 'http';
-import { router, ioServer } from './routes/products';
+import { router, ioServer } from './routes/allroutes';
 
 const port = process.env.PORT || 8080;
 const app = express();
@@ -23,6 +22,13 @@ app.set('json spaces', 2); // Hace una indentacion de la respuesta JSON en el na
 
 app.use(express.json()); // Indica que el body viene como JSON
 app.use(express.urlencoded({ extended: true })); // Indica que el body puede tener un informacion como no string
+
+// Mensaje de bienvenida
+app.get('/', (req, res) => {
+	res.json({
+		message: 'Hi, you are connected to the api',
+	});
+});
 
 // Router de la API Productos
 app.use('/api', router);

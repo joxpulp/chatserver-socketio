@@ -4,11 +4,9 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 
 var _express = _interopRequireDefault(require("express"));
 
-var _path = _interopRequireDefault(require("path"));
-
 var http = _interopRequireWildcard(require("http"));
 
-var _products = require("./routes/products");
+var _allroutes = require("./routes/allroutes");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -19,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var port = process.env.PORT || 8080;
 var app = (0, _express["default"])();
 var server = http.Server(app);
-(0, _products.ioServer)(server); // Indica que el servidor esta levantado y corriendo en puerto especificado
+(0, _allroutes.ioServer)(server); // Indica que el servidor esta levantado y corriendo en puerto especificado
 
 server.listen(port, function () {
   console.log("Server running in port:  ".concat(port));
@@ -35,6 +33,12 @@ app.use(_express["default"].json()); // Indica que el body viene como JSON
 app.use(_express["default"].urlencoded({
   extended: true
 })); // Indica que el body puede tener un informacion como no string
-// Router de la API Productos
+// Mensaje de bienvenida
 
-app.use('/api', _products.router);
+app.get('/', function (req, res) {
+  res.json({
+    message: 'Hi, you are connected to the api'
+  });
+}); // Router de la API Productos
+
+app.use('/api', _allroutes.router);
