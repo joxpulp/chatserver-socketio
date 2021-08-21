@@ -9,9 +9,9 @@ var _express = _interopRequireDefault(require("express"));
 
 var _socket = _interopRequireDefault(require("socket.io"));
 
-var _productclass = _interopRequireDefault(require("../productclass"));
+var _productclass = _interopRequireDefault(require("../services/productclass"));
 
-var _messageclass = _interopRequireDefault(require("../messageclass"));
+var _messageclass = _interopRequireDefault(require("../services/messageclass"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 

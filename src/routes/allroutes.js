@@ -1,7 +1,7 @@
 import express from 'express';
 import socketIo from 'socket.io';
-import Product from '../productclass';
-import Message from '../messageclass';
+import Product from '../services/productclass';
+import Message from '../services/messageclass';
 
 export const router = express.Router();
 const products = new Product();

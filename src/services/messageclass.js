@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-const filePath = path.resolve(__dirname, 'messageslog.txt');
+const filePath = path.resolve(__dirname, '../file/messageslog.txt');
 
 export default class Message {
 	contructor() {
