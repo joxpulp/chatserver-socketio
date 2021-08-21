@@ -1,8 +1,8 @@
 import 'regenerator-runtime/runtime';
-import fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import path from 'path';
 
-const filePath = path.resolve(__dirname, '../file/messageslog.txt');
+const filePath = path.resolve(__dirname, 'messageslog.txt');
 
 export default class Message {
 	contructor() {

@@ -7,7 +7,7 @@ exports["default"] = void 0;
 
 require("regenerator-runtime/runtime");
 
-var _promises = _interopRequireDefault(require("fs/promises"));
+var _fs = require("fs");
 
 var _path = _interopRequireDefault(require("path"));
 
@@ -23,7 +23,7 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var filePath = _path["default"].resolve(__dirname, '../file/messageslog.txt');
+var filePath = _path["default"].resolve(__dirname, 'messageslog.txt');
 
 var Message = /*#__PURE__*/function () {
   function Message() {
@@ -47,7 +47,7 @@ var Message = /*#__PURE__*/function () {
                 _context.prev = 0;
                 _context.t0 = JSON;
                 _context.next = 4;
-                return _promises["default"].readFile(filePath, 'utf-8');
+                return _fs.promises.readFile(filePath, 'utf-8');
 
               case 4:
                 _context.t1 = _context.sent;
@@ -89,7 +89,7 @@ var Message = /*#__PURE__*/function () {
                   message: message
                 });
                 _context2.next = 3;
-                return _promises["default"].writeFile(filePath, JSON.stringify(this.messages, null, 2));
+                return _fs.promises.writeFile(filePath, JSON.stringify(this.messages, null, 2));
 
               case 3:
                 return _context2.abrupt("return", this.messages);
