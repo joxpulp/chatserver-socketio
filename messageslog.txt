@@ -1,8 +1,0 @@
-[
-  {
-    "email": "joxpul@jox.com",
-    "date": "11/11/2012",
-    "time": "1pm",
-    "message": "hola don pepito"
-  }
-]
