@@ -94,13 +94,34 @@ router.post('/productos/guardar', function (req, res) {
   });
 }); // Endpoint POST para agregar un producto
 
-router.post('/mensajes/guardar', function (req, res) {
-  var body = req.body;
-  messages.newMessage(body.email, body.date, body.time, body.message);
-  res.json({
-    mensaje: body
-  });
-}); // Endpoint PUT para actualizar un producto por ID
+router.post('/mensajes/guardar', /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(req, res) {
+    var body;
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            body = req.body;
+            _context2.next = 3;
+            return messages.newMessage(body.email, body.date, body.time, body.message);
+
+          case 3:
+            res.json({
+              mensaje: body
+            });
+
+          case 4:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+
+  return function (_x3, _x4) {
+    return _ref2.apply(this, arguments);
+  };
+}()); // Endpoint PUT para actualizar un producto por ID
 
 router.put('/productos/actualizar/:id', function (req, res) {
   var specificId = req.params.id;
@@ -126,11 +147,11 @@ router["delete"]('/productos/borrar/:id', function (req, res) {
 var ioServer = function ioServer(server) {
   var io = (0, _socket["default"])(server);
   io.on('connection', /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(socket) {
+    var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(socket) {
       var getMessages;
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
               console.log('Client Connected');
               socket.on('addProduct', function (data) {
@@ -138,65 +159,65 @@ var ioServer = function ioServer(server) {
                 io.emit('products', products.getProducts());
               });
               socket.emit('products', products.getProducts());
-              _context3.prev = 3;
-              _context3.next = 6;
+              _context4.prev = 3;
+              _context4.next = 6;
               return messages.getMessages();
 
             case 6:
-              getMessages = _context3.sent;
+              getMessages = _context4.sent;
               socket.on('sendMessage', /*#__PURE__*/function () {
-                var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(message) {
-                  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(message) {
+                  return regeneratorRuntime.wrap(function _callee3$(_context3) {
                     while (1) {
-                      switch (_context2.prev = _context2.next) {
+                      switch (_context3.prev = _context3.next) {
                         case 0:
-                          _context2.prev = 0;
-                          _context2.next = 3;
+                          _context3.prev = 0;
+                          _context3.next = 3;
                           return messages.newMessage(message.email, message.date, message.time, message.message);
 
                         case 3:
-                          _context2.next = 8;
+                          _context3.next = 8;
                           break;
 
                         case 5:
-                          _context2.prev = 5;
-                          _context2.t0 = _context2["catch"](0);
-                          console.log(_context2.t0);
+                          _context3.prev = 5;
+                          _context3.t0 = _context3["catch"](0);
+                          console.log(_context3.t0);
 
                         case 8:
                           io.emit('messages', getMessages);
 
                         case 9:
                         case "end":
-                          return _context2.stop();
+                          return _context3.stop();
                       }
                     }
-                  }, _callee2, null, [[0, 5]]);
+                  }, _callee3, null, [[0, 5]]);
                 }));
 
-                return function (_x4) {
-                  return _ref3.apply(this, arguments);
+                return function (_x6) {
+                  return _ref4.apply(this, arguments);
                 };
               }());
               socket.emit('messages', getMessages);
-              _context3.next = 14;
+              _context4.next = 14;
               break;
 
             case 11:
-              _context3.prev = 11;
-              _context3.t0 = _context3["catch"](3);
-              console.log(_context3.t0);
+              _context4.prev = 11;
+              _context4.t0 = _context4["catch"](3);
+              console.log(_context4.t0);
 
             case 14:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
         }
-      }, _callee3, null, [[3, 11]]);
+      }, _callee4, null, [[3, 11]]);
     }));
 
-    return function (_x3) {
-      return _ref2.apply(this, arguments);
+    return function (_x5) {
+      return _ref3.apply(this, arguments);
     };
   }());
   return io;
