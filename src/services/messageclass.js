@@ -5,7 +5,8 @@ import path from 'path';
 const filePath = path.resolve(__dirname, '../file/messageslog.txt');
 
 export default class Message {
-	contructor() {
+	
+	constructor() {
 		this.messages = [];
 	}
 
