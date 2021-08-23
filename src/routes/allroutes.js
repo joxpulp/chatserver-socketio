@@ -46,9 +46,13 @@ router.post('/productos/guardar', (req, res) => {
 
 // Endpoint POST para agregar un producto
 router.post('/mensajes/guardar', async (req, res) => {
-	const body = req.body;
-	await messages.newMessage(body.email, body.date, body.time, body.message);
-	res.json({ mensaje: body });
+	try {
+		const body = req.body;
+		await messages.newMessage(body.email, body.date, body.time, body.message);
+		res.json({ mensaje: body });
+	} catch (error) {
+		console.log(error)
+	}
 });
 
 // Endpoint PUT para actualizar un producto por ID
